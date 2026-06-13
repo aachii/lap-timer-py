@@ -125,9 +125,10 @@ startTime = time.time()
 #video = 'mini-z-30fps-cfr-noaudio-cut.mp4'
 #cap = cv2.VideoCapture(video)
 camIndex = 0
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(camIndex)
+doRotate = True
 
-fps = 30
+fps = 60
 sleepTime = 1 / fps
 speed = 1
 
@@ -150,13 +151,15 @@ minArea = (scaleH / 6) * ( scaleW / 6)
 maxArea = (scaleH / 3) * ( scaleW / 3)
 
 frame = cv2.resize(frame, dsize=(int(scaleW), int(scaleH)), interpolation=cv2.INTER_CUBIC)
+if doRotate:
+    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
 # openCV stuff
 backsub = cv2.createBackgroundSubtractorKNN(history=200, dist2Threshold=400, detectShadows=True)
 
 tracker = BlobTracker()
 lapStart = {}
-prevY = {}   # <-- added for direction-aware crossing
+prevY = {}
 
 while True:
     ret, frame = cap.read()
@@ -165,6 +168,8 @@ while True:
 
     # frame is a numpy array
     frame = cv2.resize(frame, dsize=(int(scaleW), int(scaleH)), interpolation=cv2.INTER_CUBIC)
+    if doRotate:
+        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
     # openCV stuff
     fgmask = backsub.apply(frame)
